@@ -43,7 +43,7 @@
 		"tracker-replace":"替换 Tracker",
 		"queue":"队列",
 		"ui-mobile":"移动UI",
-		"ui-original":"原版UI",
+		"ui-original":"官方原版",
 		"ui-computer":"桌面UI",
 		"plugin":"扩展功能/插件",
 		"rename":"改名",
@@ -69,7 +69,7 @@
 			"tracker-replace":"替换 Tracker",
 			"change-download-dir":"变更数据保存目录",
 			"ui-mobile":"切换到移动设备界面",
-			"ui-original":"切换到原版界面",
+			"ui-original":"切换到官方原版界面（英文，供排错使用）",
 			"more-peers":"获取更多Peer",
 			"rename":"修改种子文件或目录名称",
 			"copy-path-to-clipboard":"复制保存目录到剪切板"
@@ -97,7 +97,7 @@
 	"title":{
 		"left":"导航",
 		"list":"种子列表",
-		"attribute":"当前种子属性",
+		"attribute":"任务详情 · 点选任务查看，拖动上沿调整高度",
 		"status":"状态"
 	},
 	"tree":{
@@ -379,10 +379,10 @@
 		},
 		"attribute":{
 			"tabs":{
-				"base":"常规",
-				"servers":"服务器",
+				"base":"概览",
+				"servers":"Tracker",
 				"files":"文件",
-				"users":"用户",
+				"users":"连接用户",
 				"config":"设置"
 			},
 			"files-fields":{

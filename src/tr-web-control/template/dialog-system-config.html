@@ -27,6 +27,10 @@
                                 id="system-config-rename-partial-files" for="rename-partial-files"></label></td>
                     </tr>
                     <tr>
+                        <td colspan="2"><input id="sequential-download" type="checkbox" style="width:16px;"/><label
+                                id="system-config-sequential-download" for="sequential-download">新任务默认按文件顺序下载（4.1+）</label></td>
+                    </tr>
+                    <tr>
                         <td colspan="2"><input id="start-added-torrents" type="checkbox" style="width:16px;"/><label
                                 id="system-config-start-added-torrents" for="start-added-torrents"></label></td>
                     </tr>
@@ -436,6 +440,16 @@
                        system-lang="dialog['public']['button-export']"></a>
                 </div>
             </div>
+            <div title="新版功能" style="padding:12px;" class="dialog">
+                <p>保留原作者经典界面，适配 Transmission 4.x / 4.1+。下面的设置直接保存在下载服务中。</p>
+                <label for="modern-default-trackers">默认公开 Tracker（仅用于公开种子）</label>
+                <textarea id="modern-default-trackers" config-type="1" style="width:96%;height:110px;"></textarea>
+                <p>每行一个地址；同组备用地址紧随主地址，不同组之间空一行。私有种子不应用此设置。</p>
+                <button type="button" id="modern-port-ipv4" config-type="1">检查 IPv4 端口</button>
+                <button type="button" id="modern-port-ipv6" config-type="1">检查 IPv6 端口</button>
+                <p id="modern-port-result" role="status"></p>
+                <p>设置完成后，点击下方“保存”。网络限制或缺少对应网络时，端口检查可能失败。</p>
+            </div>
         </div>
     </div>
     <div data-options="region:'south',border:false" style="text-align:right;padding:6px;">
@@ -577,6 +591,8 @@
         });
 
         // Set content
+        thisDialog.find('#sequential-download').prop('checked', !!system.serverConfig['sequential-download']).prop('disabled', !transmission.modernRpc);
+        thisDialog.find('#modern-default-trackers').val(system.serverConfig['default-trackers'] || '').prop('disabled', !transmission.modernRpc);
         thisDialog.find('#download-dir').val(system.downloadDir);
         $.each(transmission.downloadDirs, function (i, item) {
           $('<option/>').text(item).val(item).attr('selected', (item == system.downloadDir ? true : false)).appendTo(thisDialog.find('#download-dir'));
@@ -737,6 +753,7 @@
           for (var i = 0; i < inputs.length; i++) {
             var input = inputs[i];
             var configType = input.getAttribute('config-type') || 0;
+            if (input.id === 'sequential-download' && !transmission.modernRpc) continue;
             value = null;
             // 0 表示服务器配置，默认为0
             if (configType == 0 && input.id != undefined && input.id != '') {
@@ -810,6 +827,11 @@
           }
 
           var cuslang = thisDialog.find('#system-config-lang').val();
+
+          var defaultTrackers = thisDialog.find('#modern-default-trackers').val();
+          if (transmission.modernRpc && defaultTrackers !== (system.serverConfig['default-trackers'] || '')) {
+            config['default-trackers'] = defaultTrackers;
+          }
 
           // If the parameters are changed, save
           if (!$.isEmptyObject(config)) {
@@ -1154,5 +1176,18 @@
       }
     };
     page.init();
+    ['ipv4', 'ipv6'].forEach(function (protocol) {
+      thisDialog.find('#modern-port-' + protocol).prop('disabled', !transmission.modernRpc).on('click', function () {
+        var button = $(this);
+        button.prop('disabled', true);
+        thisDialog.find('#modern-port-result').text('正在检查 ' + protocol.toUpperCase() + '…');
+        transmission.exec({ method: 'port-test', arguments: { ip_protocol: protocol } }, function (data) {
+          thisDialog.find('#modern-port-result').text(
+            protocol.toUpperCase() + '：' + (data.result === 'success' ? (data.arguments['port-is-open'] ? '端口开放' : '端口关闭或不可达') : '检查失败：' + data.result)
+          );
+          button.prop('disabled', false);
+        });
+      });
+    });
   })($('#dialog-system-config'));
 </script>

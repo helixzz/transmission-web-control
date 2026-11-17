@@ -1,105 +1,62 @@
 <p align="center">
-<img src="https://github.com/ronggang/transmission-web-control/raw/master/src/tr-web-control/logo.png"><br/>
-<img src="https://img.shields.io/badge/transmission-%3E%3D2.40%20(RPC%20%3E14)-green.svg" title="Support Transmission Version">
-<img src="https://img.shields.io/badge/fork-Transmission%204.x%20%2F%20RPC%2019-blue.svg" title="Fork focus">
+<img src="src/tr-web-control/logo.png"><br/>
+<img src="https://img.shields.io/badge/transmission-2.40%20~%204.1%2B%20(JSON--RPC%202.0)-green.svg" title="Support Transmission Version">
+<img src="https://img.shields.io/badge/version-v1.7.1--zhCN-blue.svg" title="Version">
 <a href="LICENSE" title="license"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
 ----
 
-# Transmission Web Control — maintained fork
+# Transmission Web Control (v1.7.1-zhCN 群晖 & Transmission 4.1+ 增强维护版)
 
-This is a **maintained fork** of [ronggang/transmission-web-control](https://github.com/ronggang/transmission-web-control)
-(the original "Transmission Web Control" / TWC by 栽培者), which was **archived on 2025-06-01**.
+本项目是基于 [ronggang/transmission-web-control](https://github.com/ronggang/transmission-web-control)（栽培者原版 v1.6.1，已于 2025-06 归档）的中文社区续作，融合了 [uuunit/transmission-web-control](https://github.com/uuunit/transmission-web-control)（v1.7.0）与 [wzya2026/transmission-web-control-zhcn](https://github.com/wzya2026/transmission-web-control-zhcn) 的核心改进，专为 **Transmission 4.0 / 4.1+（JSON-RPC 2.0）** 及 **群晖 DSM 7（SynoCommunity 套件）** 打造。
 
-The upstream project served PT users well for years, but its final release (v1.6.1, 2020-09)
-predates Transmission 4.x. This fork keeps the UI and workflow people are used to, and brings
-it up to date with the modern RPC API.
+## 核心特性与改进
 
-## What this fork adds
-
-**Transmission 4.x / RPC 17+ support**
-
-| Feature | Status | Notes |
+| 功能模块 | 支持状态 | 说明 |
 |---|---|---|
-| Server-side labels | ✅ | `labels` on the torrent, stored in the daemon and shared across clients. The original TWC "labels" were browser-local only. |
-| Sequential download | ✅ | Per-torrent toggle (right-click) plus read/write in the detail panel |
-| Bandwidth groups | ✅ | `group-get` / `group-set` wrappers; per-torrent `group` binding shown |
-| Private torrent flag | ✅ | `isPrivate` shown in the detail panel |
-| Per-torrent max peers | ✅ | `maxConnectedPeers` editable |
-| Availability / ETA-idle / percent-complete | ✅ | Requested and available to the UI |
-| Capability detection | ✅ | `transmission.supports()` gates every new feature by `rpc-version`, so older daemons keep working |
-| Reproducible build | ✅ | The original repo shipped `min/` with no build config; `node build.js` now regenerates it |
+| **Transmission 4.1 JSON-RPC 2.0 兼容层** | ✅ | 内置 `rpc-compat.js` 协议边界适配，自动协商 `X-Transmission-Rpc-Version >= 6`（JSON-RPC 2.0），自动转换 `snake_case` / `camelCase`、`cache_size_mib`、`recently_active`、`wanted` 等字段，同时保留旧版守护进程回退能力 |
+| **服务端标签 (`labels`)** | ✅ | 支持 Transmission 4.0+ 服务端持久化标签，左侧导航树新增「服务端标签」分类筛选，配有图形化芯片标签编辑器（支持单种与右键批量设置） |
+| **按文件顺序下载 (`sequential_download`)** | ✅ | 支持种子列表右键一键开启/关闭顺序下载、详情面板切换、以及「系统参数 -> 基本设置」新任务默认顺序下载 |
+| **带宽限速组 (`group-get` / `group-set`)** | ✅ | 完整支持 Transmission 4.x 限速组管理对话框、详情页下拉绑定、以及右键菜单批量分配限速组 |
+| **桌面式上下分栏详情面板** | ✅ | 点选种子自动展开底部详情栏，顶部常驻任务进度条、总大小、已完成、实时下载/上传速度与分享率摘要，新增累计下载、下载用时、做种用时、私有种子标识，修复快速切换任务时的异步竞态清空问题 |
+| **新版功能扩展（默认公开 Tracker & 双栈端口测试）** | ✅ | 「系统参数 -> 新版功能」标签页支持配置 `default-trackers`（仅作用于公开种子，不影响 PT 私有种子）及 IPv4 / IPv6 端口连通性检测 |
+| **群晖 DSM 7 专用部署与套件升级自愈** | ✅ | `deploy-synology.sh` 自动识别群晖 `public_html`、原子备份并保留官方界面入口（`index.original.html`），并注入 `service_prestart` 与 `rc.d` 守护钩子，防止套件中心升级 Transmission 后覆盖中文界面 |
+| **可复现构建与单元测试** | ✅ | `node build.js` 基于 Terser 一键生成全部 `script/min/*.min.js`；`node test-compat.js` 覆盖 JSON-RPC 2.0 转换、能力检测与 UI 选择竞态测试 |
 
-Everything else — the layout, the PT-oriented tracker grouping, the batch operations — is
-intentionally unchanged. If you are used to TWC, this should feel identical, with a few new
-options in the right places.
+## 群晖 DSM 7 快速安装与升级守护
 
-## Requirements
+将构建产物 `dist/transmission-web-control-zhcn.tar.gz` 与 `deploy-synology.sh` 上传至群晖任意目录（例如 `/volume2/homes/helixzz/twc-zhcn`），通过 SSH 执行：
 
-* Transmission **2.40+** (RPC >= 14). Transmission **4.x** unlocks the new features listed above.
-* A modern browser. No build step is required to *use* the UI — only to modify it.
-
-## Install
-
-Same as upstream: copy the contents of `src/` into the directory Transmission serves as its web UI.
-For a Synology `transmission` package that is typically:
-
-```sh
-cd /var/packages/transmission/target/share/transmission/
-rm -rf public_html
-cp -r /path/to/src public_html
-chown -R sc-transmission:synocommunity public_html
+```bash
+sudo bash /volume2/homes/helixzz/twc-zhcn/deploy-synology.sh deploy
 ```
 
-Or point Transmission at the directory:
+常用管理命令：
 
-```sh
-TRANSMISSION_WEB_HOME=/path/to/src transmission-daemon
+```bash
+# 查看当前 Web 目录、已安装版本与历史备份快照
+bash /volume2/homes/helixzz/twc-zhcn/deploy-synology.sh status
+
+# 一键回滚至升级前的官方原版 WebUI
+sudo bash /volume2/homes/helixzz/twc-zhcn/deploy-synology.sh rollback
 ```
 
-## Develop
+安装完成后，在浏览器访问 `http://<群晖IP>:9091/transmission/web/` 并按 `Ctrl+F5` 强制刷新即可。
 
-```sh
-npm install          # installs terser
-node build.js        # regenerate src/tr-web-control/script/min/*.min.js
-node build.js --check  # syntax-check the generated bundles without writing
+## 本地开发与构建
 
-node test-rpc.js 192.168.1.2:9091   # read-only smoke test against a live daemon
-python3 preview-server.py --port 8901 --upstream 192.168.1.2:9091
-# then open http://127.0.0.1:8901/   (binds 0.0.0.0 by default; pass --host 127.0.0.1 to restrict)
+```bash
+npm install
+node build.js          # 重新打包压缩 src/tr-web-control/script/min/*.min.js
+node build.js --check  # 仅校验压缩产物语法
+node test-compat.js    # 运行 JSON-RPC 2.0 兼容层与桌面详情组件单元测试
 ```
 
-`preview-server.py` serves the local `src/` tree and proxies `/rpc` to a real daemon, so you can
-iterate without touching a production install. It bypasses `HTTP_PROXY` on purpose — LAN RPC
-through a proxy returns 502.
+## 致谢与许可
 
-Source files live in `src/tr-web-control/script/*.js` (unminified). The page loads the minified
-bundles from `script/min/`, so **any source change requires a rebuild**.
+* 原作者：[栽培者 (ronggang)](https://github.com/ronggang/transmission-web-control) 及全体贡献者
+* Transmission 4.x 特性与构建工具参考：[uuunit/transmission-web-control](https://github.com/uuunit/transmission-web-control)
+* JSON-RPC 2.0 协议适配与桌面分栏参考：[wzya2026/transmission-web-control-zhcn](https://github.com/wzya2026/transmission-web-control-zhcn)
 
-## Deploy to Synology
-
-`deploy-twcv17.sh` is a small helper for the NAS itself (run it there, over SSH, as root):
-
-```sh
-sudo ./deploy-twcv17.sh status     # detect the served web dir + show current versions
-sudo ./deploy-twcv17.sh backup     # timestamped snapshot next to the web dir
-sudo ./deploy-twcv17.sh deploy     # snapshot, download this fork from GitHub, replace, fix ownership
-sudo ./deploy-twcv17.sh rollback   # restore the newest snapshot (asks for confirmation)
-sudo ./deploy-twcv17.sh list       # list snapshots
-```
-
-`deploy` always snapshots first and aborts if the download or extraction fails, so a bad deploy
-never destroys the working install. It touches **only** the web directory — no `settings.json`,
-no daemon config, no network settings.
-
-## Credits
-
-* Original project and UI: [栽培者 (ronggang)](https://github.com/ronggang) and contributors — archived 2025-06
-* This fork: [uuunit](https://github.com/uuunit)
-
-Licensed under the MIT license, same as upstream. See [LICENSE](LICENSE).
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
+遵循 [MIT License](LICENSE) 开源许可。

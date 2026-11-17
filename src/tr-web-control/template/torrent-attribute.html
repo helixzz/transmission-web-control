@@ -1,6 +1,15 @@
 <div class="easyui-layout" data-options="fit:true" style="width:100%;height:100%;" id="torrent-attribute-layout">
+	<div data-options="region:'north',border:false" class="desktop-detail-summary">
+		<div class="desktop-detail-heading"><strong id="desktop-detail-name">点选上方任务，查看详细信息</strong><span id="desktop-detail-status">未选择任务</span></div>
+		<div class="desktop-detail-metrics">
+			<div id="desktop-detail-progress" role="progressbar" aria-label="任务完成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+			<span>总大小<b id="desktop-detail-size">—</b></span><span>已完成<b id="desktop-detail-completed">—</b></span>
+			<span>下载<b id="desktop-detail-download">—</b></span><span>上传<b id="desktop-detail-upload">—</b></span>
+			<span class="desktop-metric-ratio">分享率<b id="desktop-detail-ratio">—</b></span>
+		</div>
+	</div>
 	<div data-options="region:'center'" style="padding:0px;border:0px;">
-		<div id="torrent-attribute-tabs" class="easyui-tabs" style="width:100%;height:100%;" data-options="fit:true,plain:true,tabPosition:'left',border:0,headerWidth:105">
+		<div id="torrent-attribute-tabs" class="easyui-tabs" style="width:100%;height:100%;" data-options="fit:true,plain:true,tabPosition:'top',border:0">
 			<div title="常规" style="padding:2px;" class="dialog">
 				<table style="width:100%;">
 					<tr>
@@ -64,6 +73,18 @@
 					<tr>
 						<td class="title"><span id="torrent-attribute-label-comment"></span></td>
 						<td colspan="3"><span id="torrent-attribute-value-comment"></span></td>
+					</tr>
+					<tr>
+						<td class="title">累计下载：</td>
+						<td><span id="torrent-attribute-value-downloadedEver"></span></td>
+						<td class="title">私有种子：</td>
+						<td><span id="torrent-attribute-value-isPrivateBase"></span></td>
+					</tr>
+					<tr>
+						<td class="title">下载用时：</td>
+						<td><span id="torrent-attribute-value-secondsDownloading"></span></td>
+						<td class="title">做种用时：</td>
+						<td><span id="torrent-attribute-value-secondsSeeding"></span></td>
 					</tr>
 					<tr>
 						<td colspan="4">

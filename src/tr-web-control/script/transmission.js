@@ -315,13 +315,14 @@ var transmission = {
 	supports: function(feature) {
 		var cfg = this.sessionConfig || {};
 		var rpc = parseInt(cfg["rpc-version"] || 0, 10);
+		var modern = !!this.modernRpc;
 		switch (feature) {
 			// bandwidth groups: RPC 17+
-			case "bandwidthGroups": return rpc >= 17;
+			case "bandwidthGroups": return modern || rpc >= 17;
 			// labels: RPC 17+ (Transmission 4.0)
-			case "labels": return rpc >= 17;
+			case "labels": return modern || rpc >= 17;
 			// sequential download: available since RPC 14
-			case "sequentialDownload": return rpc >= 14;
+			case "sequentialDownload": return modern || rpc >= 14;
 			default: return false;
 		}
 	},

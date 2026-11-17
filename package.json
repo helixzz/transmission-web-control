@@ -1,11 +1,12 @@
 {
   "name": "transmission-web-control",
-  "version": "1.7.0",
-  "description": "Transmission Web Control - maintained fork. Original by ronggang (栽培者), archived 2025-06. This fork adds Transmission 4.x / RPC 19 support.",
+  "version": "1.7.1-zhCN",
+  "description": "Transmission Web Control (v1.7.1-zhCN) - Maintained fork for Transmission 4.0 / 4.1+ (JSON-RPC 2.0) and Synology DSM 7.",
   "main": "build.js",
   "scripts": {
     "build": "node build.js",
-    "build:check": "node build.js --check"
+    "build:check": "node build.js --check",
+    "test": "node test-compat.js"
   },
   "keywords": [
     "transmission",

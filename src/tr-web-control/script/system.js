@@ -1,8 +1,8 @@
 // Current system global object
 var system = {
-	version: "1.7.0",
+	version: "1.7.1-zhCN",
 	rootPath: "tr-web-control/",
-	codeupdate: "20261027",
+	codeupdate: "20261117",
 	configHead: "transmission-web-control",
 	// default config, can be customized in config.js
 	config: {
@@ -800,6 +800,9 @@ var system = {
 					if (selectedIndex != -1) {
 						system.control.torrentlist.datagrid("unselectRow", selectedIndex);
 					}
+					if (system.showDesktopDetails) {
+						system.showDesktopDetails(rowData);
+					}
 					system.getTorrentInfos(rowData.id);
 					selectedIndex = rowIndex;
 				},
@@ -857,6 +860,9 @@ var system = {
 					});
 				}
 			});
+			if (system.ensureDesktopInitialSelection) {
+				system.ensureDesktopInitialSelection();
+			}
 		}, "json");
 
 		// 刷新当前页数据
@@ -3105,16 +3111,13 @@ var system = {
 	getTorrentInfos: function (id) {
 		if (!transmission.torrents.all[id]) return;
 		if (transmission.torrents.all[id].infoIsLoading) return;
-		if (this.currentTorrentId > 0 && transmission.torrents.all[this.currentTorrentId]) {
-			if (transmission.torrents.all[this.currentTorrentId].infoIsLoading) return;
-		}
 		this.currentTorrentId = id;
 		// Loads only when expanded
 		if (!this.panel.attribute.panel("options").collapsed) {
 			//this.panel.attribute.panel({iconCls:"icon-loading"});
 			var torrent = transmission.torrents.all[id];
 			torrent.infoIsLoading = true;
-			var fields = "fileStats,trackerStats,peers,leftUntilDone,status,rateDownload,rateUpload,uploadedEver,uploadRatio,error,errorString,pieces,pieceCount,pieceSize";
+			var fields = "fileStats,trackerStats,peers,leftUntilDone,status,rateDownload,rateUpload,uploadedEver,uploadRatio,error,errorString,pieces,pieceCount,pieceSize,downloadedEver,secondsDownloading,secondsSeeding,isPrivate";
 			// If this is the first time to load this torrent information, load more information
 			if (!torrent.moreInfosTag) {
 				fields += ",files,trackers,comment,dateCreated,creator,downloadDir";
@@ -3128,7 +3131,6 @@ var system = {
 				// Merge the currently returned value to the current torrent
 				jQuery.extend(torrent, result[0]);
 				if (system.currentTorrentId == 0 || system.currentTorrentId != id) {
-					system.clearTorrentAttribute();
 					return;
 				}
 
@@ -3344,7 +3346,7 @@ var system = {
 					// Dates
 					case "lastAnnounceTime":
 					case "nextAnnounceTime":
-						rowdata[key] = formatLongTime(stats[key]);
+						rowdata[key] = stats[key] > 0 ? formatLongTime(stats[key]) : "—";
 						break;
 
 						// true/false
@@ -3744,6 +3746,7 @@ var system = {
 		}
 	},
 	checkUpdate: function () {
+		return; // Upstream is archived; updates are managed via helixzz/transmission-web-control.
 		$.ajax({
 			url: this.checkUpdateScript,
 			dataType: "json",

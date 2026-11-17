@@ -28,9 +28,11 @@ const TARGETS = [
   { src: "system.js", out: "system.min.js" },
   { src: "system.mobile.js", out: "system.mobile.min.js" },
   { src: "transmission.js", out: "transmission.min.js" },
+  { src: "rpc-compat.js", out: "rpc-compat.min.js" },
   { src: "transmission.torrents.js", out: "transmission.torrents.min.js" },
   { src: "public.js", out: "public.min.js" },
   { src: "FileSaver.js", out: "FileSaver.min.js" },
+  { src: "desktop-ui.js", out: "desktop-ui.min.js" },
 ];
 
 const TERSER_OPTIONS = {
